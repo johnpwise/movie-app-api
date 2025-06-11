@@ -13,9 +13,15 @@ exports.getAllMovies = async (req, res) => {
 
 exports.addMovie = async (req, res) => {
     try {
+        const { id } = req.params;
         const data = req.body;
-        const docRef = await db.collection('movies').add(data);
-        res.status(201).json({ id: docRef.id });
+        if (id) {
+            await db.collection('movies').doc(id).set(data);
+            res.status(201).json({ id, ...data });
+        } else {
+            const docRef = await db.collection('movies').add(data);
+            res.status(201).json({ id: docRef.id, ...data });
+        }
     } catch (err) {
         res.status(500).json({ error: 'Failed to add movie', details: err.message });
     }
